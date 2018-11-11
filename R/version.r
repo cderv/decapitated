@@ -8,7 +8,20 @@
 #' @examples
 #' chrome_version()
 chrome_version <- function(quiet = FALSE, chrome_bin=Sys.getenv("HEADLESS_CHROME")) {
-  res <- processx::run(chrome_bin, "--version")
+  if(.Platform$OS.type == "windows") {
+    cmd <- "powershell"
+    powershell_cmd <- sprintf("(Get-Item -Path '%s').VersionInfo.ProductVersion", chrome_bin)
+    args <- c(
+      "-NoLogo",
+      "-NoProfile",
+      "-Command",
+      powershell_cmd
+    )
+  } else {
+    cmd <- chrome_bin
+    args <- "--version"
+  }
+  res <- processx::run(cmd, args)
   if (!quiet) message(res$stdout)
   return(invisible(trimws(res$stdout)))
 }
