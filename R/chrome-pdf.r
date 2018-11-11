@@ -54,33 +54,6 @@ chrome_dump_pdf <- function(url, path=NULL, overwrite=TRUE, prime=TRUE,
   fil_ext <- tools::file_ext(fil_nam)
   fil_pre <- tools::file_path_sans_ext(fil_nam)
 
-  td <- tempdir()
-
-  setwd(td)
-
-  work_dir <- if (is.null(work_dir)) .get_app_dir() else work_dir
-
-  args <- c("--headless")
-  args <- c(args, "--disable-gpu")
-  args <- c(args, "--no-sandbox")
-  args <- c(args, "--allow-no-sandbox-job")
-  args <- c(args, sprintf("--user-data-dir=%s", work_dir))
-  args <- c(args, sprintf("--crash-dumps-dir=%s", work_dir))
-  args <- c(args, sprintf("--utility-allowed-dir=%s", work_dir))
-  args <- c(args, "--print-to-pdf", url)
-
-  vers <- chrome_version(quiet=TRUE)
-
-  .prime_url(url, as.numeric(prime), work_dir, chrome_bin)
-
-  processx::run(
-    command = chrome_bin,
-    args = args,
-    error_on_status = FALSE,
-    echo_cmd = FALSE,
-    echo = FALSE
-  ) -> res
-
   first_fil <- file.path(dir_nam, sprintf("%s.%s", fil_pre, fil_ext))
   out_fil <- first_fil
 
@@ -94,7 +67,32 @@ chrome_dump_pdf <- function(url, path=NULL, overwrite=TRUE, prime=TRUE,
 
   }
 
-  file.copy(file.path(dirname(chrome_bin), "output.pdf"), out_fil, overwrite = overwrite)
+  td <- tempdir()
+
+  setwd(td)
+
+  work_dir <- if (is.null(work_dir)) .get_app_dir() else work_dir
+
+  args <- c("--headless")
+  args <- c(args, "--disable-gpu")
+  args <- c(args, "--no-sandbox")
+  args <- c(args, "--allow-no-sandbox-job")
+  args <- c(args, sprintf("--user-data-dir=%s", work_dir))
+  args <- c(args, sprintf("--crash-dumps-dir=%s", work_dir))
+  args <- c(args, sprintf("--utility-allowed-dir=%s", work_dir))
+  args <- c(args, sprintf("--print-to-pdf=%s", out_fil), url)
+
+  vers <- chrome_version(quiet=TRUE)
+
+  .prime_url(url, as.numeric(prime), work_dir, chrome_bin)
+
+  processx::run(
+    command = chrome_bin,
+    args = args,
+    error_on_status = FALSE,
+    echo_cmd = FALSE,
+    echo = FALSE
+  ) -> res
 
   return(invisible(out_fil))
 
