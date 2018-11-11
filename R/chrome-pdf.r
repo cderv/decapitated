@@ -94,7 +94,7 @@ chrome_dump_pdf <- function(url, path=NULL, overwrite=TRUE, prime=TRUE,
 
   }
 
-  file.copy("output.pdf", out_fil, overwrite = overwrite)
+  file.copy(file.path(dirname(chrome_bin), "output.pdf"), out_fil, overwrite = overwrite)
 
   return(invisible(out_fil))
 
